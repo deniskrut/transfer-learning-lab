@@ -1,6 +1,10 @@
 import pickle
 import tensorflow as tf
 # TODO: import Keras layers you need here
+from keras.models import Sequential
+from keras.layers.core import Dense, Activation, Flatten
+from keras.optimizers import Adam
+from keras.utils.np_utils import to_categorical
 
 flags = tf.app.flags
 FLAGS = flags.FLAGS
@@ -46,8 +50,26 @@ def main(_):
     # the dataset
     # 10 for cifar10
     # 43 for traffic
+    output_size = 10
+    if "traffic" in FLAGS.training_file:
+        output_size = 43
+
+    model = Sequential()
+    model.add(Flatten(input_shape=X_train.shape[1:]))
+    model.add(Dense(output_size))
+    model.add(Activation('softmax'))
+
 
     # TODO: train your model here
+
+    nb_epoch = 50
+
+    model.compile(loss='categorical_crossentropy',
+              optimizer=Adam(),
+              metrics=['accuracy'])
+
+    history = model.fit(X_train, to_categorical(y_train, output_size), nb_epoch=nb_epoch,
+                    verbose=1, validation_data=(X_val, to_categorical(y_val, output_size)))
 
 
 # parses flags and calls the `main` function above
